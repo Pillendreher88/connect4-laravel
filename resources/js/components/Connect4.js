@@ -141,7 +141,7 @@ export default function Connect4({
     if (player != playersTurn)
       return (
         <>
-          <Waiting /> Waiting for Opponent
+          <Waiting /> Waiting for Opponents
         </>
       );
 

@@ -8,9 +8,9 @@ import "@testing-library/jest-dom";
 jest.mock("axios");
 window.Echo = {
   leave: jest.fn(),
-  channel: (id) => {
-    listen: jest.fn();
-  },
+  channel: (id) => ({
+    listen: jest.fn(),
+  }),
 };
 
 describe("should navigate to correct pages", () => {

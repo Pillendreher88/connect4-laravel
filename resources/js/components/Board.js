@@ -141,7 +141,7 @@ export default function Board({
     <Container player={player}>
       <Header data-testid="header">
         {isLoading ? (
-          <Loading data-testid="loading" />
+          <Loading data-testid="loading" key="loading" />
         ) : renderHeader ? (
           renderHeader()
         ) : null}

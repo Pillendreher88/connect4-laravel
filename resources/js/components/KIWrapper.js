@@ -3,6 +3,7 @@ import styled, { keyframes } from "styled-components";
 import Board from "./Board.js";
 import checkBoard from "./connect4-util.js";
 import { mediaQueries } from "./Theme";
+import axios from "axios";
 
 const Left = styled.div`
   width: 100%;
@@ -33,7 +34,10 @@ const ButtonGroup = styled.div`
 `}
 `;
 
-const ButtonKi = styled.div`
+const ButtonKi = styled.div.attrs((props) => ({
+  // we can define static props
+  role: "button",
+}))`
   flex: 1 1 auto;
   display: flex;
   align-items: center;
@@ -152,6 +156,23 @@ const RematchButton = styled.button`
   }
 `;
 
+export const selectKiMove = (moves, kiLevel) => {
+  const values = Object.values(moves);
+
+  return values.reduce((prev, current, index) => {
+    let ratingWithErrors = current + Math.random() * (6 - kiLevel);
+    if (Math.random() > 0.9 + kiLevel * 0.02) {
+      ratingWithErrors *= -1;
+    }
+
+    if (index === 0) return [ratingWithErrors, 0];
+
+    if (prev[0] < ratingWithErrors) {
+      return [ratingWithErrors, Number(Object.keys(moves)[index])];
+    } else return prev;
+  }, []);
+};
+
 export default function KIWrapper() {
   const getInitState = () => ({
     board: "0000000000000000000000000000000000000000000000000",
@@ -202,24 +223,6 @@ export default function KIWrapper() {
     }
   };
 
-  const selectKiMove = (moves) => {
-    const values = Object.values(moves);
-
-    return values.reduce(
-      (prev, current, index) => {
-        let ratingWithErrors = current + Math.random() * (6 - kiLevel);
-        if (Math.random() > 0.9 + kiLevel * 0.02) {
-          ratingWithErrors *= -1;
-        }
-
-        if (prev[0] < ratingWithErrors) {
-          return [ratingWithErrors, Object.keys(moves)[index]];
-        } else return prev;
-      },
-      [-1, -1]
-    );
-  };
-
   const makeKIMove = async () => {
     setLoading(true);
 
@@ -237,7 +240,7 @@ export default function KIWrapper() {
           ],
         }
       );
-      const move = selectKiMove(response.data);
+      const move = selectKiMove(response.data, kiLevel);
       addMove(42 + move[1], "2");
       setLoading(false);
     } catch (error) {
@@ -252,10 +255,11 @@ export default function KIWrapper() {
 
   const renderHeader = () => {
     return [0, 1, 2, 3, 4, 5, 6].map((number, index) => (
-      <CircleWrapper>
+      <CircleWrapper key={index}>
         <Button
           onClick={(event) => handleClick(index)}
           disabled={state.winner || isLoading || state.board[index] !== "0"}
+          aria-label={`insert${index}`}
           color={1}
         >
           <TriangleStyled />
